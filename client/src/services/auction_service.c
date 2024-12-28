@@ -232,6 +232,7 @@ int handle_join_room(int sockfd, int room_id, Room *room)
     }
 
     int role = buffer[0]; // buffer[0] trả về role của client tham gia phòng
+    printf("Role : %d\n", role);
 
     memcpy(room, &buffer[1], sizeof(Room));
 

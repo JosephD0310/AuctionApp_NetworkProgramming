@@ -222,14 +222,19 @@ void handleJoinRoom(int client_socket, int room_id)
     }
 
     // Đóng gói dữ liệu
-    memcpy(&buffer[0], &role, 1);
-    memcpy(&buffer[1], &room, sizeof(Room));
+    Room updatedRoom;
 
-    // Gửi dữ liệu cho client
-    if (send(client_socket, buffer, sizeof(Room) + 1, 0) < 0)
+    if (getRoomById(room_id, &updatedRoom))
     {
-        perror("Error sending room data");
-        return;
+        memcpy(&buffer[0], &role, 1);
+        memcpy(&buffer[1], &updatedRoom, sizeof(Room));
+
+        // Gửi dữ liệu cho client
+        if (send(client_socket, buffer, sizeof(Room) + 1, 0) < 0)
+        {
+            perror("Error sending room data");
+            return;
+        }
     }
 }
 
@@ -247,19 +252,18 @@ void handleExitRoom(int client_socket, int room_id)
     }
 
     // Kiểm tra user
-    int response = 0;
+    int response = 1;
     if (strcmp(room.username, session->username) != 0)
     {
         int updateJoiner = room.numUsers - 1;
         int res = updateRoomById(room_id, updateJoiner, "joiner");
-        printf("Update Joiner Room %d - %d\n", res, updateJoiner);
+        printf("Exit Room %d - %d joiner\n", res, updateJoiner);
         if (res <= 0)
         {
             int response = 0; // Thất bại
             send(client_socket, &response, 1, 0);
             return;
         }
-        response = 1;
     }
 
     // Gửi dữ liệu cho client
@@ -384,4 +388,47 @@ void handleDeleteItem(int sockfd, char buffer[BUFFER_SIZE])
     {
         perror("Failed to send response to client");
     }
+}
+
+/////////////////////// AUCTION /////////////////////////
+
+void start_auction(AuctionSession *session, int room_id, int item_id, int start_price) {
+    pthread_mutex_lock(&session->lock);
+    session->room_id = room_id;
+    session->current_item_id = item_id;
+    session->current_bid = start_price;
+    session->highest_bidder_id = -1; // Chưa có ai đấu giá
+    session->remaining_time = 30;   // Thời gian đấu giá mặc định
+    session->auction_state = 1;     // Đang đấu giá
+    pthread_mutex_unlock(&session->lock);
+
+    broadcast_to_clients(session, "START_AUCTION", room_id, item_id, start_price);
+}
+
+void update_auction_time(AuctionSession *session) {
+    pthread_mutex_lock(&session->lock);
+    if (session->remaining_time > 0) {
+        session->remaining_time--;
+        broadcast_to_clients(session, "TIME_UPDATE", session->remaining_time);
+    } else if (session->auction_state == 1) {
+        session->auction_state = 0; // Kết thúc đấu giá
+        broadcast_to_clients(session, "AUCTION_END", session->highest_bidder_id, session->current_bid);
+    }
+    pthread_mutex_unlock(&session->lock);
+}
+
+void handle_bid_request(int client_id, AuctionSession *session, int bid_amount) {
+    pthread_mutex_lock(&session->lock);
+
+    if (session->auction_state == 1 && bid_amount > session->current_bid) {
+        session->current_bid = bid_amount;
+        session->highest_bidder_id = client_id;
+
+        // Thông báo giá mới tới các client
+        broadcast_to_clients(session, "NEW_BID", session->current_item_id, bid_amount, client_id);
+    } else {
+        send_to_client(client_id, "BID_REJECTED", session->current_bid);
+    }
+
+    pthread_mutex_unlock(&session->lock);
 }

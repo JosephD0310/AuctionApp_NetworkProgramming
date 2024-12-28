@@ -12,16 +12,29 @@
 #define MAX_USERS 100
 #define BUFFER_SIZE 100000
 
-void broadcast_refresh(int client_socket, int MSG_TYPE)
+void broadcast_refresh(int client_socket)
 {
-    printf("%d\n", MSG_TYPE);
     char buffer[BUFFER_SIZE];
-    buffer[0] = MSG_TYPE;
+    buffer[0] = REFRESH;
     for (int i = 0; i < MAX_CLIENTS; i++)
     {
         if (sessions[i].sockfd > 0 && sessions[i].sockfd != client_socket)
         {
             send(sessions[i].sockfd, buffer, 1, 0);
+        }
+    }
+}
+
+void broadcast_start_auction(int client_socket, int room_id)
+{
+    char buffer[BUFFER_SIZE];
+    buffer[0] = START_AUCTION;
+    buffer[1] = room_id
+    for (int i = 0; i < MAX_CLIENTS; i++)
+    {
+        if (sessions[i].sockfd > 0 && sessions[i].sockfd != client_socket)
+        {
+            send(sessions[i].sockfd, buffer, 2, 0);
         }
     }
 }
@@ -128,7 +141,7 @@ int main()
                         case CREATE_ROOM:
                         {
                             handleCreateRoom(fd, buffer);
-                            broadcast_refresh(fd, REFRESH);
+                            broadcast_refresh(fd);
                             break;
                         }
                         case DELETE_ROOM:
@@ -149,7 +162,7 @@ int main()
                         case CREATE_ITEM:
                         {
                             handleCreateItem(fd, buffer);
-                            broadcast_refresh(fd, REFRESH);
+                            broadcast_refresh(fd);
                             break;
                         }
                         case FETCH_ITEMS:
@@ -161,13 +174,13 @@ int main()
                         case DELETE_ITEM:
                         {
                             handleDeleteItem(fd, buffer);
-                            broadcast_refresh(fd, REFRESH);
+                            broadcast_refresh(fd);
                             break;
                         }
                         case JOIN_ROOM:
                         {
                             handleJoinRoom(fd, buffer[1]);
-                            // broadcast_refresh(fd);
+                            // broadcast_refresh(fd, REFRESH);
                             break;
                         }
                         case EXIT_ROOM:
@@ -179,7 +192,7 @@ int main()
                         case START_AUCTION:
                         {
                             handleStartAuction(fd, buffer[1]);
-                            broadcast_refresh(fd, START_AUCTION);
+                            broadcast_refresh(fd, buffer[1]);
                             break;
                         }
                         default:
