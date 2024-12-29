@@ -357,8 +357,10 @@ void handle_result_msg(char buffer[BUFFER_SIZE], AuctionContext *context)
     AuctionSession auction_session;
     memcpy(&auction_session, &buffer[1], sizeof(AuctionSession));
     gtk_stack_set_visible_child_name(context->auction_stack, "waiting");
-    gtk_label_set_text(GTK_LABEL(context->label_waiting), "Đấu giá thành công");
-    gtk_label_set_text(GTK_LABEL(context->label_countdown), auction_session.highest_bidder);
+    char label[50];
+    snprintf(label, sizeof(label), "Đấu giá thành công - %s", auction_session.highest_bidder);
+    gtk_label_set_text(GTK_LABEL(context->label_waiting), label);
+    gtk_label_set_text(GTK_LABEL(context->label_countdown), "Chờ 5s - Đấu giá vật phẩm tiếp theo ");
     stop_countdown(context);
     return;
 }
@@ -367,6 +369,7 @@ void handle_end_msg(char buffer[BUFFER_SIZE], AuctionContext *context)
 {
     gtk_stack_set_visible_child_name(context->auction_stack, "waiting");
     gtk_label_set_text(GTK_LABEL(context->label_waiting), "Phiên đấu giá đã kế thúc");
+    gtk_label_set_text(GTK_LABEL(context->label_countdown), "");
     return;
 }
 

@@ -423,6 +423,13 @@ void *countdown_timer(void *arg)
         printf("Kết thúc đấu giá\n");
         auction_session->auction_state = 0; // Trạng thái chờ
         broadcast_update_auction(auction_session, RESULT_AUCTION);
+        int res = updateItemById(auction_session->current_item_id, auction_session->room_id, 0, "Sold");
+        printf("Update item %d - Sold\n", res);
+        if (res <= 0)
+        {
+            printf("Cập nhật vật phẩm đã bán bị lỗi");
+            return NULL;
+        }
         sleep(5);
         handleStartAuction(auction_session->participants[0], auction_session->room_id);
     }
@@ -484,20 +491,6 @@ void handleBidRequest(int client_socket, char buffer[BUFFER_SIZE])
 
     AuctionSession *auction_session = find_auction_by_room_id(room_id);
     ClientSession *session = find_session_by_socket(client_socket);
-    // Kết thúc đấu giá cho vật phẩm hiện tại
-    if (bid_amount >= 5000)
-    {
-        broadcast_update_auction(auction_session, RESULT_AUCTION);
-        int res = updateItemById(auction_session->current_item_id, room_id, 0, "Sold");
-        printf("Update item %d - Sold\n", res);
-        if (res <= 0)
-        {
-            printf("Cập nhật vật phẩm đã bán bị lỗi");
-            return;
-        }
-        sleep(5);
-        handleStartAuction(client_socket, room_id);
-    }
 
     if (bid_amount > auction_session->current_bid)
     {
