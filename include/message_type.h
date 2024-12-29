@@ -17,8 +17,8 @@ typedef enum
     START_AUCTION      = 0x0C,  // Client (Nếu là chủ phòng) gửi yêu cầu bắt đầu phiên đấu giá
     BID                = 0x0D,  // Client Gửi giá đấu
     UPDATE_AUCTION     = 0x0E,  // Server Cập nhật trạng thái phiên đấu giá
-    RESULT             = 0x0F,  // Server gửi kết quả phiên đấu giá
-    NOTIFICATION       = 0x10,  // Server gửi thông báo phiên đấu giá sắp kết thúc
+    END_AUCTION        = 0x0F,  // Server gửi kết quả phiên đấu giá
+    RESULT_AUCTION     = 0x10,  // Server gửi kết quả đấu giá
     BUY_NOW            = 0x11,  // Client yêu cầu mua vật phẩm với giá bán ngay
     LOGOUT             = 0x12,  // Client yêu cầu đăng xuất
     ERROR              = 0x00,  // Server thông báo lỗi

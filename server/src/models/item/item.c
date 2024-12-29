@@ -174,3 +174,84 @@ int getItemById(int item_id, Item *item)
     fclose(file);
     return 0; // Phòng không tồn tại
 }
+
+// Hàm lấy vật phẩm đầu tiên có trạng thái Available trong một room
+int getFirstAvailableItem(int room_id, Item *item)
+{
+    FILE *file = fopen("data/items.txt", "r");
+    if (file == NULL)
+    {
+        perror("Error opening file to find Available item");
+        return 0; // Không mở được file
+    }
+
+    Item current_item;
+    while (fscanf(file, "%d %s %d %d %d %s\n", 
+                  &current_item.item_id, 
+                  current_item.item_name, 
+                  &current_item.startingPrice, 
+                  &current_item.buyNowPrice, 
+                  &current_item.room_id, 
+                  current_item.status) == 6)
+    {
+        // Kiểm tra room_id khớp và trạng thái là Available
+        if (current_item.room_id == room_id && strcmp(current_item.status, "Available") == 0)
+        {
+            *item = current_item; // Sao chép thông tin vật phẩm
+            fclose(file);
+            return 1; // Tìm thấy vật phẩm
+        }
+    }
+
+    fclose(file);
+    return 0; // Không tìm thấy vật phẩm nào chưa bán
+}
+
+// Hàm cập nhật thông tin vật phẩm
+int updateItemById(int item_id, int room_id, int number, const char *option)
+{
+    Item items[MAX_ITEM_IN_ROOM];
+    int count = loadItems(room_id, items);
+
+    // Tìm vật phẩm cần cập nhật
+    int updated = 0;
+    for (int i = 0; i < count; i++)
+    {
+        if (items[i].item_id == item_id)
+        {
+            if (strcmp(option, "Sold") == 0)
+            {
+                strncpy(items[i].status, "Sold", sizeof(items[i].status)); // Cập nhật trạng thái vật phẩm
+            }
+            else if (strcmp(option, "price") == 0) // Cập nhật giá bán và chủ sở hữu mới
+            {
+                
+            }
+            updated = 1;
+            break;
+        }
+    }
+
+    if (!updated)
+    {
+        // Không tìm thấy vp cần cập nhật
+        return 0;
+    }
+
+    // Ghi lại dữ liệu đã cập nhật vào file
+    FILE *file = fopen("data/items.txt", "w");
+    if (file == NULL)
+    {
+        perror("Error reopening file to save updated item");
+        return 0;
+    }
+
+    for (int i = 0; i < count; i++)
+    {
+        fprintf(file, "%d %s %d %d %d %s\n", items[i].item_id, items[i].item_name, items[i].startingPrice, items[i].buyNowPrice, items[i].room_id, items[i].status);
+    }
+    fclose(file); // Đóng file sau khi ghi
+
+    return item_id; // Thành công
+}
+

@@ -28,20 +28,22 @@ CLIENT_SOURCES = 	$(CLIENT_DIR)/main.c \
 					$(SERVICES_DIR)/auction_service.c \
 					$(MODELS_DIR)/user/user.c \
 					$(MODELS_DIR)/room/room.c \
-					$(MODELS_DIR)/item/item.c 
+					$(MODELS_DIR)/item/item.c \
+					$(MODELS_DIR)/auction/auction_manager.c 
 
 SERVER_SOURCES = 	$(SERVER_DIR)/main.c \
 					$(CONTROLLERS_DIR)/server_controller.c \
 					$(SESSION_DIR)/session_manager.c \
 					$(MODELS_DIR)/user/user.c \
 					$(MODELS_DIR)/room/room.c \
-					$(MODELS_DIR)/item/item.c 			
+					$(MODELS_DIR)/item/item.c \
+					$(MODELS_DIR)/auction/auction_manager.c  
 
 CLIENT = client_exec
 SERVER = server_exec
 
 INCLUDES = 	-I$(AUTH_DIR) -I$(HOME_DIR) -I$(AUCTION_DIR) -I$(UTILS_DIR) -I$(SERVICES_DIR) \
-			-I$(MODELS_DIR)/user -I$(MODELS_DIR)/room -I$(MODELS_DIR)/item \
+			-I$(MODELS_DIR)/user -I$(MODELS_DIR)/room -I$(MODELS_DIR)/item -I$(MODELS_DIR)/auction \
 			-I$(CONTROLLERS_DIR) \
 			-I$(SESSION_DIR) \
 			-I$(INCLUDE_DIR) \

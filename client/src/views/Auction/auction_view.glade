@@ -283,7 +283,7 @@
                       <object class="GtkLabel">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Participants</property>
+                        <property name="label" translatable="yes">Participants </property>
                         <style>
                           <class name="text_color_white"/>
                           <class name="text_bold"/>
@@ -779,11 +779,20 @@
                           <object class="GtkBox">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
+                            <property name="valign">center</property>
+                            <property name="margin-left">50</property>
+                            <property name="margin-right">50</property>
+                            <property name="spacing">10</property>
                             <child>
-                              <object class="GtkEntry" id="entry_offer_price">
+                              <object class="GtkButton" id="btn_bid1">
+                                <property name="label" translatable="yes">1</property>
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
-                                <property name="halign">center</property>
+                                <property name="receives-default">True</property>
+                                <signal name="clicked" handler="on_bid_1" swapped="no"/>
+                                <style>
+                                  <class name="custom_button"/>
+                                </style>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -792,23 +801,62 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkButton">
-                                <property name="label" translatable="yes">Offer price</property>
+                              <object class="GtkButton" id="btn_bid2">
+                                <property name="label" translatable="yes">2</property>
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="receives-default">True</property>
+                                <signal name="clicked" handler="on_bid_2" swapped="no"/>
+                                <style>
+                                  <class name="custom_button"/>
+                                </style>
                               </object>
                               <packing>
-                                <property name="expand">False</property>
+                                <property name="expand">True</property>
                                 <property name="fill">True</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
+                            <child>
+                              <object class="GtkButton" id="btn_bid3">
+                                <property name="label" translatable="yes">3</property>
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="receives-default">True</property>
+                                <signal name="clicked" handler="on_bid_3" swapped="no"/>
+                                <style>
+                                  <class name="custom_button"/>
+                                </style>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="btn_bid4">
+                                <property name="label" translatable="yes">4</property>
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="receives-default">True</property>
+                                <signal name="clicked" handler="on_bid_4" swapped="no"/>
+                                <style>
+                                  <class name="custom_button"/>
+                                </style>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">3</property>
+                              </packing>
+                            </child>
                           </object>
                           <packing>
-                            <property name="expand">False</property>
+                            <property name="expand">True</property>
                             <property name="fill">True</property>
-                            <property name="position">5</property>
+                            <property name="pack-type">end</property>
+                            <property name="position">6</property>
                           </packing>
                         </child>
                         <style>

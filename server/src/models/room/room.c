@@ -50,7 +50,7 @@ int createRoom(const char *roomName, const char *username)
 
     fprintf(file, "%d %s %s %d %d %s\n", room.room_id, room.roomName, room.username, room.numUsers, room.numItems, room.status);
     fclose(file);
-    return 1; // Thành công
+    return room.room_id; // Trả về room id
 }
 
 // Hàm xóa phòng đấu giá

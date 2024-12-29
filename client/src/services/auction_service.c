@@ -263,7 +263,7 @@ int handle_exit_room(int sockfd, int room_id) {
     return buffer[0];
 }
 
-int handle_start_auction(int sockfd, int room_id)
+void handle_start_auction(int sockfd, int room_id)
 {
     char buffer[BUFFER_SIZE];
     buffer[0] = START_AUCTION;
@@ -272,16 +272,24 @@ int handle_start_auction(int sockfd, int room_id)
     if (send(sockfd, buffer, 1, 0) < 0)
     {
         perror("Failed to send start auction request");
-        return -1;
+        return;
     }
 
-    // Nhận danh sách phòng từ server
-    memset(buffer, 0, BUFFER_SIZE);
-    if (recv(sockfd, buffer, BUFFER_SIZE, 0) < 0)
+    return;
+}
+
+void handle_bid_request(int sockfd, int room_id, int bid_amount){
+    char buffer[BUFFER_SIZE];
+    buffer[0] = BID;
+    memcpy(buffer + 1, &room_id, sizeof(int));
+    memcpy(buffer + sizeof(int) + 1, &bid_amount, sizeof(int));
+
+    // Gửi yêu cầu qua socket
+    if (send(sockfd, buffer, 2 * sizeof(int) + 1, 0) < 0)
     {
-        perror("Failed to receive response");
-        return -1;
+        perror("Failed to send bid auction request");
+        return;
     }
 
-    return buffer[0];
+    return;
 }

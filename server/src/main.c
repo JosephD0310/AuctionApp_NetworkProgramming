@@ -7,6 +7,7 @@
 #include "server_controller.h"
 #include "message_type.h"
 #include "session_manager.h"
+#include "auction_manger.h"
 
 #define PORT 8080
 #define MAX_USERS 100
@@ -29,7 +30,7 @@ void broadcast_start_auction(int client_socket, int room_id)
 {
     char buffer[BUFFER_SIZE];
     buffer[0] = START_AUCTION;
-    buffer[1] = room_id
+    buffer[1] = room_id;
     for (int i = 0; i < MAX_CLIENTS; i++)
     {
         if (sessions[i].sockfd > 0 && sessions[i].sockfd != client_socket)
@@ -84,6 +85,7 @@ int main()
     max_fd = server_sockfd;
 
     init_sessions();
+    init_auctions();
 
     while (1)
     {
@@ -192,7 +194,11 @@ int main()
                         case START_AUCTION:
                         {
                             handleStartAuction(fd, buffer[1]);
-                            broadcast_refresh(fd, buffer[1]);
+                            break;
+                        }
+                        case BID:
+                        {
+                            handleBidRequest(fd, buffer);
                             break;
                         }
                         default:
