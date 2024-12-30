@@ -371,3 +371,42 @@
 [2024-12-30 09:27:10] [SERVER] [JOIN_ROOM]Nhận và xử lý yêu cầu rời phòng 1 - username: pipo
 [2024-12-30 09:27:12] [CLIENT] [EXIT_ROOM]Client 3 Gửi yêu cầu rời phòng đấu giá - 1
 [2024-12-30 09:27:12] [SERVER] [JOIN_ROOM]Nhận và xử lý yêu cầu rời phòng 1 - username: abc
+[2024-12-30 10:20:02] [CLIENT] [LOGIN]Yêu cầu đăng nhập vào hệ thống - username: abc
+[2024-12-30 10:20:02] [SERVER] [LOGIN]Nhận và xử lý yêu cầu đăng nhập - username: abc
+[2024-12-30 10:20:02] [SERVER] [FETCH_ALL_ROOM]Nhận và xử lý yêu cầu lấy danh sách tất cả các phòng hiện có
+[2024-12-30 10:20:04] [SERVER] [FETCH_OWN_ROOM]Nhận và xử lý yêu cầu lấy danh sách các phòng đang sử hữu - username: abc
+[2024-12-30 10:20:07] [SERVER] [FETCH_OWN_ROOM]Nhận và xử lý yêu cầu lấy danh sách các phòng đang sử hữu - username: abc
+[2024-12-30 10:20:07] [SERVER] [FETCH_ALL_ROOM]Nhận và xử lý yêu cầu lấy danh sách tất cả các phòng hiện có
+[2024-12-30 10:27:24] [CLIENT] [LOGIN]Yêu cầu đăng nhập vào hệ thống - username: abc
+[2024-12-30 10:27:24] [SERVER] [LOGIN]Nhận và xử lý yêu cầu đăng nhập - username: abc
+[2024-12-30 10:27:25] [SERVER] [FETCH_ALL_ROOM]Nhận và xử lý yêu cầu lấy danh sách tất cả các phòng hiện có
+[2024-12-30 10:27:29] [SERVER] [FETCH_OWN_ROOM]Nhận và xử lý yêu cầu lấy danh sách các phòng đang sử hữu - username: abc
+[2024-12-30 10:27:32] [SERVER] [FETCH_OWN_ROOM]Nhận và xử lý yêu cầu lấy danh sách các phòng đang sử hữu - username: abc
+[2024-12-30 10:27:40] [CLIENT] [LOGIN]Yêu cầu đăng nhập vào hệ thống - username: pipo
+[2024-12-30 10:27:40] [SERVER] [LOGIN]Nhận và xử lý yêu cầu đăng nhập - username: pipo
+[2024-12-30 10:27:41] [SERVER] [FETCH_ALL_ROOM]Nhận và xử lý yêu cầu lấy danh sách tất cả các phòng hiện có
+[2024-12-30 10:27:42] [SERVER] [FETCH_OWN_ROOM]Nhận và xử lý yêu cầu lấy danh sách các phòng đang sử hữu - username: pipo
+[2024-12-30 10:28:04] [SERVER] [FETCH_OWN_ROOM]Nhận và xử lý yêu cầu lấy danh sách các phòng đang sử hữu - username: pipo
+[2024-12-30 10:28:07] [SERVER] [FETCH_OWN_ROOM]Nhận và xử lý yêu cầu lấy danh sách các phòng đang sử hữu - username: pipo
+[2024-12-30 10:28:31] [CLIENT] [CREATE_ROOM]Client 3 Gửi yêu cầu tạo mới phòng đấu giá
+[2024-12-30 10:28:31] [SERVER] [CREATE_ROOM]Nhận và xử lý yêu cầu tạo phòng - username: pipo
+[2024-12-30 10:28:31] [SERVER] [FETCH_OWN_ROOM]Nhận và xử lý yêu cầu lấy danh sách các phòng đang sử hữu - username: pipo
+[2024-12-30 10:28:31] [SERVER] [FETCH_ALL_ROOM]Nhận và xử lý yêu cầu lấy danh sách tất cả các phòng hiện có
+[2024-12-30 10:28:33] [CLIENT] [JOIN_ROOM]Client 3 Gửi yêu cầu tham gia phòng đấu giá - 2
+[2024-12-30 10:28:33] [SERVER] [JOIN_ROOM]Nhận và xử lý yêu cầu tham gia phòng 2 - username: pipo
+[2024-12-30 10:28:33] [CLIENT] [FETCH_ITEMS]Client 3 Gửi yêu cầu lấy danh sách vật phẩm trong room - 2
+[2024-12-30 10:29:00] [CLIENT] [CREATE_ITEM]Client 3 Gửi yêu cầu tạo mới vật phẩm đấu giá
+[2024-12-30 10:29:01] [CLIENT] [FETCH_ITEMS]Client 3 Gửi yêu cầu lấy danh sách vật phẩm trong room - 2
+[2024-12-30 10:29:01] [SERVER] [FETCH_ALL_ROOM]Nhận và xử lý yêu cầu lấy danh sách tất cả các phòng hiện có
+[2024-12-30 10:29:06] [SERVER] [FETCH_ALL_ROOM]Nhận và xử lý yêu cầu lấy danh sách tất cả các phòng hiện có
+[2024-12-30 10:29:07] [CLIENT] [JOIN_ROOM]Client 3 Gửi yêu cầu tham gia phòng đấu giá - 2
+[2024-12-30 10:29:07] [SERVER] [JOIN_ROOM]Nhận và xử lý yêu cầu tham gia phòng 2 - username: abc
+[2024-12-30 10:29:07] [CLIENT] [FETCH_ITEMS]Client 3 Gửi yêu cầu lấy danh sách vật phẩm trong room - 2
+[2024-12-30 10:29:10] [CLIENT] [BUY_NOW]Client 3 Gửi yêu cầu mua ngay vật phẩm id - 3
+[2024-12-30 10:29:10] [SERVER] [BUY_NOW]Nhận và xử lý yêu cầu mua ngay vật phẩm từ client -  abc
+[2024-12-30 10:29:10] [CLIENT] [JOIN_ROOM]Client 3 Gửi yêu cầu tham gia phòng đấu giá - 2
+[2024-12-30 10:29:10] [CLIENT] [FETCH_ITEMS]Client 3 Gửi yêu cầu lấy danh sách vật phẩm trong room - 2
+[2024-12-30 10:29:10] [SERVER] [JOIN_ROOM]Nhận và xử lý yêu cầu tham gia phòng 2 - username: pipo
+[2024-12-30 10:29:10] [CLIENT] [FETCH_ITEMS]Client 3 Gửi yêu cầu lấy danh sách vật phẩm trong room - 2
+[2024-12-30 10:29:17] [CLIENT] [EXIT_ROOM]Client 3 Gửi yêu cầu rời phòng đấu giá - 2
+[2024-12-30 10:29:17] [SERVER] [JOIN_ROOM]Nhận và xử lý yêu cầu rời phòng 2 - username: abc

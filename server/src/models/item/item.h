@@ -23,6 +23,7 @@ int createItem(const char *item_name, int startingPrice, int buyNowPrice, int ro
 int deleteItem(int item_id);
 void initItemFile();
 int loadItems(int room_id, Item *items);
+int loadOwnerItems(const char *username, Item *items);
 int getItemById(int item_id, Item *item);
 int getFirstAvailableItem(int room_id, Item *item);
 int updateItemById(int item_id, int number, const char *option);

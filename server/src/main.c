@@ -156,6 +156,11 @@ int main()
                             handleFetchOwnRoom(fd);
                             break;
                         }
+                        case FETCH_PURCHASED_ITEM:
+                        {
+                            handleFetchPurchasedItem(fd);
+                            break;
+                        }
                         case CREATE_ITEM:
                         {
                             handleCreateItem(fd, buffer);

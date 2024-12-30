@@ -22,6 +22,10 @@ typedef struct
     GtkWidget *create_room_msg;
     GtkFlowBox *room_list;
     GtkWidget *room_card;
+
+    GtkWidget *history;
+    GtkListBox *purchased_list;
+
 } AppContext;
 
 typedef struct
@@ -31,6 +35,14 @@ typedef struct
     User user;
     GtkWidget *home_window;
 } RoomContext;
+
+typedef struct
+{
+    int sockfd;
+    int item_id;
+    User user;
+    GtkWidget *home_window;
+} PurchasedItem;
 
 void on_home_window_destroy(GtkWidget *widget, gpointer user_data)
 {
@@ -43,6 +55,16 @@ void on_home_window_destroy(GtkWidget *widget, gpointer user_data)
 void clear_all_children(GtkFlowBox *flowbox)
 {
     GList *children = gtk_container_get_children(GTK_CONTAINER(flowbox));
+    for (GList *iter = children; iter != NULL; iter = iter->next)
+    {
+        gtk_widget_destroy(GTK_WIDGET(iter->data));
+    }
+    g_list_free(children);
+}
+
+void clear_purchased_item(GtkListBox *listbox)
+{
+    GList *children = gtk_container_get_children(GTK_CONTAINER(listbox));
     for (GList *iter = children; iter != NULL; iter = iter->next)
     {
         gtk_widget_destroy(GTK_WIDGET(iter->data));
@@ -106,6 +128,60 @@ GtkWidget *create_room_card(Room room, gpointer user_data)
         char item_count_text[32];
         snprintf(item_count_text, sizeof(item_count_text), "%d", room.numItems);
         gtk_label_set_text(GTK_LABEL(label_item_count), item_count_text);
+    }
+
+    return card;
+}
+
+GtkWidget *create_purchased_item(Item item, gpointer user_data)
+{
+    AppContext *context = (AppContext *)user_data;
+
+    GtkBuilder *builder;
+    GtkWidget *card;
+    GError *error = NULL;
+
+    builder = gtk_builder_new();
+    if (!gtk_builder_add_from_file(builder, "client/src/views/Home/custom_card.glade", &error))
+    {
+        g_printerr("Error loading file: %s\n", error->message);
+        g_clear_error(&error);
+        return NULL;
+    }
+    PurchasedItem *itemContext = g_malloc(sizeof(PurchasedItem));
+    itemContext->sockfd = context->sockfd;
+    itemContext->item_id = item.item_id;
+    itemContext->home_window = context->home_window;
+    itemContext->user = context->user;
+
+    gtk_builder_connect_signals(builder, itemContext);
+
+    card = GTK_WIDGET(gtk_builder_get_object(builder, "purchased_item"));
+
+    GtkWidget *parent = gtk_widget_get_parent(card);
+    if (parent != NULL)
+    {
+        gtk_container_remove(GTK_CONTAINER(parent), card);
+    }
+
+    // Tìm và cập nhật nội dung trong card
+    GtkWidget *purchased_item_name = GTK_WIDGET(gtk_builder_get_object(builder, "purchased_item_name"));
+    GtkWidget *purchased_item_owner = GTK_WIDGET(gtk_builder_get_object(builder, "purchased_item_owner"));
+    GtkWidget *purchased_item_price = GTK_WIDGET(gtk_builder_get_object(builder, "purchased_item_price"));
+
+    if (GTK_IS_LABEL(purchased_item_name))
+    {
+        gtk_label_set_text(GTK_LABEL(purchased_item_name), item.item_name);
+    }
+    if (GTK_IS_LABEL(purchased_item_owner))
+    {
+        gtk_label_set_text(GTK_LABEL(purchased_item_owner), item.purchaser);
+    }
+    if (GTK_IS_LABEL(purchased_item_price))
+    {
+        char label[32];
+        snprintf(label, sizeof(label), "%d", item.sold_price);
+        gtk_label_set_text(GTK_LABEL(purchased_item_price), label);
     }
 
     return card;
@@ -182,6 +258,31 @@ void fetch_own_room(gpointer user_data)
     gtk_widget_show_all(GTK_WIDGET(context->room_list));
 }
 
+void fetch_purchased_item(gpointer user_data)
+{
+    AppContext *context = (AppContext *)user_data;
+
+    Item items[20];
+    int item_count = handle_fetch_purchased_item(context->sockfd, items);
+
+    if (item_count < 0)
+    {
+        g_printerr("Failed to fetch item list from server\n");
+        return;
+    }
+
+    // Duyệt qua danh sách phòng và thêm vào GTK_FLOW_BOX
+    for (int i = 0; i < item_count; i++)
+    {
+
+        GtkWidget *purchased_item_card = create_purchased_item(items[i], context);
+        gtk_list_box_insert(context->purchased_list, purchased_item_card, -1);
+    }
+
+    // Hiển thị các widget vừa thêm
+    gtk_widget_show_all(GTK_WIDGET(context->purchased_list));
+}
+
 void show_create_room_form(GtkWidget *button, gpointer user_data)
 {
     AppContext *context = (AppContext *)user_data;
@@ -254,6 +355,17 @@ void on_tab_switch(GtkStack *stack, GParamSpec *pspec, gpointer user_data)
 
         // // Fetch lại danh sách các phòng của người dùng
         fetch_own_room(context);
+    }
+    // Kiểm tra nếu là tab History
+    else if (current_child == GTK_WIDGET(context->history))
+    {
+        printf("Switched to History tab.\n");
+
+        // // Xóa các widget hiện có trong flowbox trước khi fetch lại
+        clear_purchased_item(context->purchased_list);
+
+        // // Fetch lại danh sách các phòng của người dùng
+        fetch_purchased_item(context);
     }
 }
 
@@ -332,6 +444,9 @@ void init_home_view(int sockfd, GtkWidget *auth_window, User user)
     appContext->create_room_form = GTK_WIDGET(gtk_builder_get_object(builder, "create_room_form"));
     appContext->room_name = GTK_WIDGET(gtk_builder_get_object(builder, "room_name"));
     appContext->create_room_msg = GTK_WIDGET(gtk_builder_get_object(builder, "create_room_msg"));
+
+    appContext->history = GTK_WIDGET(gtk_builder_get_object(builder, "history"));
+    appContext->purchased_list = GTK_LIST_BOX(gtk_builder_get_object(builder, "purchased_list"));
 
     GtkStack *stack = GTK_STACK(gtk_builder_get_object(builder, "stack_app"));
     g_signal_connect(stack, "notify::visible-child", G_CALLBACK(on_tab_switch), appContext);

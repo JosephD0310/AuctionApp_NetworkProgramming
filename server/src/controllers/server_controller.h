@@ -7,6 +7,7 @@ void handle_register(int client_socket, char buffer[BUFFER_SIZE]);
 void handleCreateRoom(int client_socket, char buffer[BUFFER_SIZE]);
 void handleFetchAllRoom(int client_socket);
 void handleFetchOwnRoom(int client_socket);
+void handleFetchPurchasedItem(int client_socket);
 void handleJoinRoom(int client_socket, int room_id);
 void handleExitRoom(int client_socket, int room_id);
 void handleStartAuction(int client_socket, int room_id);

@@ -19,7 +19,7 @@ typedef enum
     END_AUCTION        = 0x0E,  // Server gửi kết quả phiên đấu giá
     RESULT_AUCTION     = 0x0F,  // Server gửi kết quả đấu giá
     BUY_NOW            = 0x10,  // Client yêu cầu mua vật phẩm với giá bán ngay
-    LOGOUT             = 0x11,  // Client yêu cầu đăng xuất
+    FETCH_PURCHASED_ITEM             = 0x11,  
     ERROR              = 0x00,  // Server thông báo lỗi
     REFRESH            = -1,  // Server yêu cầu reload
 } MessageType;

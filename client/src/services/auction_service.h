@@ -12,6 +12,7 @@ int handle_create_item(int sockfd, const char *item_name, int startingPrice, int
 int handle_delete_item(int sockfd, int itemId);
 int handle_fetch_all_rooms(int sockfd, Room *rooms);
 int handle_fetch_own_rooms(int sockfd, Room *rooms);
+int handle_fetch_purchased_item(int sockfd, Item *items);
 int handle_fetch_items(int sockfd, int room_id, Item *items);
 int handle_join_room(int sockfd, int room_id, Room *room);
 int handle_exit_room(int sockfd, int room_id);

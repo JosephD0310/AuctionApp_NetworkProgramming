@@ -101,7 +101,6 @@ int handle_delete_item(int sockfd, int itemId)
 // Client gửi yêu cầu lấy danh sách tất cả các phòng đấu giá
 int handle_fetch_all_rooms(int sockfd, Room *rooms)
 {
-    logSystem("CLIENT", "FETCH_ALL_ROOMS", "Client %d Gửi yêu cầu lấy danh sách tất cả các phòng đấu giá hiện có", sockfd);
     char buffer[BUFFER_SIZE];
     buffer[0] = FETCH_ALL_ROOMS;
 
@@ -135,7 +134,6 @@ int handle_fetch_all_rooms(int sockfd, Room *rooms)
 // Client gửi yêu cầu lấy danh sách các phòng đấu giá đang sở hữu
 int handle_fetch_own_rooms(int sockfd, Room *rooms)
 {
-    logSystem("CLIENT", "FETCH_OWN_ROOMS", "Client %d Gửi yêu cầu lấy danh sách các phòng đấu giá đang sở hữu", sockfd);
     char buffer[BUFFER_SIZE];
     buffer[0] = FETCH_OWN_ROOMS;
 
@@ -157,6 +155,31 @@ int handle_fetch_own_rooms(int sockfd, Room *rooms)
     memcpy(rooms, &buffer[1], room_count * sizeof(Room));
     return room_count;
 }
+
+int handle_fetch_purchased_item(int sockfd, Item *items)
+{
+    char buffer[BUFFER_SIZE];
+    buffer[0] = FETCH_PURCHASED_ITEM;
+
+    // Gửi yêu cầu qua socket
+    if (send(sockfd, buffer, 1, 0) < 0)
+    {
+        perror("Failed to send fetch items request");
+        return -1;
+    }
+
+    // Nhận danh sách phòng từ server
+    if (recv(sockfd, buffer, BUFFER_SIZE, 0) < 0)
+    {
+        perror("Failed to receive response");
+        return -1;
+    }
+
+    int item_count = buffer[0]; 
+    memcpy(items, &buffer[1], item_count * sizeof(Item));
+    return item_count;
+}
+
 
 // Lấy danh sách vật phẩm trong phòng đấu giá
 int handle_fetch_items(int sockfd, int room_id, Item *items)

@@ -181,6 +181,38 @@ void handleFetchOwnRoom(int client_socket)
     }
 }
 
+void handleFetchPurchasedItem(int client_socket)
+{
+    ClientSession *session = find_session_by_socket(client_socket);
+    if (session != NULL)
+    {
+        char buffer[BUFFER_SIZE];
+        Item items[20];
+        int item_count = loadOwnerItems(session->username, items);
+
+        if (item_count < 0)
+        {
+            int response = 0;
+            send(client_socket, &response, 1, 0);
+            return;
+        }
+
+        memcpy(&buffer[0], &item_count, 1);
+        memcpy(&buffer[1], &items, item_count * sizeof(Item));
+
+        if (send(client_socket, buffer, (item_count * sizeof(Item)) + 1, 0) < 0)
+        {
+            perror("Error sending item data");
+            return;
+        }
+    }
+    else
+    {
+        int response = 0;
+        send(client_socket, &response, 1, 0);
+    }
+}
+
 void handleJoinRoom(int client_socket, int room_id)
 {
     char buffer[BUFFER_SIZE];

@@ -155,6 +155,29 @@ int loadItems(int room_id, Item *items)
     return item_count;
 }
 
+int loadOwnerItems(const char *username, Item *items) {
+    FILE *file = fopen("data/items.txt", "r");
+    if (file == NULL)
+    {
+        perror("Error opening room file");
+        return -1;
+    }
+
+    int item_count = 0;
+
+    Item existedItem;
+        while (fscanf(file, "%d %s %d %d %d %s %s %d\n", &existedItem.item_id, existedItem.item_name, &existedItem.startingPrice, &existedItem.buyNowPrice, &existedItem.room_id, existedItem.status, existedItem.purchaser, &existedItem.sold_price) == 8)
+        {
+            if (strcmp(existedItem.purchaser, username) == 0)
+            {
+                items[item_count++] = existedItem;
+            }
+        }
+
+    fclose(file);
+    return item_count;
+}
+
 // Lấy thông tin một vật phẩm theo ID
 int getItemById(int item_id, Item *item)
 {
