@@ -29,7 +29,9 @@ CLIENT_SOURCES = 	$(CLIENT_DIR)/main.c \
 					$(MODELS_DIR)/user/user.c \
 					$(MODELS_DIR)/room/room.c \
 					$(MODELS_DIR)/item/item.c \
-					$(MODELS_DIR)/auction/auction_manager.c 
+					$(MODELS_DIR)/auction/auction_manager.c \
+					$(SESSION_DIR)/session_manager.c \
+					$(INCLUDE_DIR)/log_system.c \
 
 SERVER_SOURCES = 	$(SERVER_DIR)/main.c \
 					$(CONTROLLERS_DIR)/server_controller.c \
@@ -37,7 +39,8 @@ SERVER_SOURCES = 	$(SERVER_DIR)/main.c \
 					$(MODELS_DIR)/user/user.c \
 					$(MODELS_DIR)/room/room.c \
 					$(MODELS_DIR)/item/item.c \
-					$(MODELS_DIR)/auction/auction_manager.c  
+					$(MODELS_DIR)/auction/auction_manager.c \
+					$(INCLUDE_DIR)/log_system.c \
 
 CLIENT = client_exec
 SERVER = server_exec

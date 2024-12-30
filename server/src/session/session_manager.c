@@ -47,12 +47,21 @@ ClientSession *find_session_by_socket(int sockfd) {
     return NULL;
 }
 
-bool update_session_user(int sockfd, int user_id, const char *username) {
+ClientSession *find_session_by_user_id(int user_id) {
+    for (int i = 0; i < MAX_CLIENTS; i++) {
+        if (sessions[i].user_id == user_id) {
+            return &sessions[i];
+        }
+    }
+    return NULL;
+}
+
+bool update_session_user(int sockfd, int money) {
     ClientSession *session = find_session_by_socket(sockfd);
     if (session) {
-        session->user_id = user_id;
-        strncpy(session->username, username, sizeof(session->username) - 1);
-        printf("Session updated: sockfd=%d, user_id=%d, username=%s\n", sockfd, user_id, username);
+        session->money = money;
+        // strncpy(session->username, username, sizeof(session->username) - 1);
+        // printf("Session updated: sockfd=%d, user_id=%d, username=%s\n", sockfd, user_id, username);
         return true;
     }
     return false;

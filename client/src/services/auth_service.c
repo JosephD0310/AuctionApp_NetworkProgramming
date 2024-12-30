@@ -8,7 +8,7 @@
 
 int handle_login(int sockfd, const char *username, const char *password, User *user_data)
 {
-
+    logSystem("CLIENT", "LOGIN", "Yêu cầu đăng nhập vào hệ thống - username: %s", username);
     char buffer[BUFFER_SIZE];
     User user;
     strncpy(user.username, username, sizeof(user.username));
@@ -38,7 +38,7 @@ int handle_login(int sockfd, const char *username, const char *password, User *u
 
 int handle_register(int sockfd, const char *username, const char *password, User *user_data)
 {
-
+    logSystem("CLIENT", "REGISTER", "Yêu cầu đăng ký vào hệ thống - username: %s", username);
     char buffer[BUFFER_SIZE];
     User user;
     strncpy(user.username, username, sizeof(user.username));

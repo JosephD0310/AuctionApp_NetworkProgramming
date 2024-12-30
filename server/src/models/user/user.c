@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "user.h"
+#include "session_manager.h"
 
 // Hàm để lấy ID người dùng tiếp theo (tăng dần)
 int getNextuser_id()
@@ -112,11 +113,8 @@ int getUserById(int user_id, User *user)
     return 0;
 }
 
-// Hàm cập nhật tiền của người dùng
-int updateMoney(int user_id, int number)
+int loadUsers(User *users)
 {
-    User users[50];
-
     FILE *file = fopen("data/users.txt", "r");
     if (file == NULL)
     {
@@ -126,44 +124,62 @@ int updateMoney(int user_id, int number)
 
     int user_count = 0;
 
-    if (user_id != 0)
+    User existedUser;
+    while (fscanf(file, "%d %s %s %d\n", &existedUser.user_id, existedUser.username, existedUser.password, &existedUser.money) == 4)
     {
-        User existedUser;
-        while (fscanf(file, "%d %s %s %d\n", &existedUser.user_id, existedUser.username, existedUser.password, &existedUser.money) == 4)
-        {
-            users[user_count++] = existedUser;
-        }
+        users[user_count++] = existedUser;
     }
 
-    // Tìm user cần cập nhật
+    fclose(file);
+    return user_count;
+}
+
+// Hàm cập nhật tiền của người dùng
+int updateMoney(int user_id, int amount, const char *option)
+{
+    User users[MAX_CLIENTS];
+    int count = loadUsers(users);
+
     int updated = 0;
-    for (int i = 0; i < user_count; i++)
+    for (int i = 0; i < count; i++)
     {
         if (users[i].user_id == user_id)
         {
-            users[i].money = number;
+            ClientSession *session = find_session_by_user_id(user_id);
+            if (strcmp(option, "collect") == 0)
+            {
+                users[i].money = users[i].money + amount; // Thu tiền
+                session->money = users[i].money;
+            }
+            else if (strcmp(option, "spend") == 0)
+            {
+                users[i].money = users[i].money - amount; // Chi tiền
+                session->money = users[i].money;
+            }
+            updated = 1;
+            break;
         }
     }
 
     if (!updated)
     {
-        // Không tìm thấy phòng cần cập nhật
+        // Không tìm thấy user cần cập nhật
         return 0;
     }
 
     // Ghi lại dữ liệu đã cập nhật vào file
-    file = fopen("data/users.txt", "w");
+    FILE *file = fopen("data/users.txt", "w");
     if (file == NULL)
     {
-        perror("Error reopening file to save updated room");
+        perror("Error reopening file to save updated user");
         return 0;
     }
 
-    for (int i = 0; i < user_count; i++)
+    for (int i = 0; i < count; i++)
     {
         fprintf(file, "%d %s %s %d\n", users[i].user_id, users[i].username, users[i].password, users[i].money);
     }
     fclose(file); // Đóng file sau khi ghi
 
-    return user_id; // Thành công
+    return 1; // Thành công
 }

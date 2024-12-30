@@ -11,7 +11,7 @@
 // Client gửi yêu cầu tạo phòng đấu giá
 int handle_create_room(int sockfd, const char *room_name)
 {
-
+    logSystem("CLIENT", "CREATE_ROOM", "Client %d Gửi yêu cầu tạo mới phòng đấu giá", sockfd);
     char buffer[BUFFER_SIZE];
     buffer[0] = CREATE_ROOM;
     memcpy(&buffer[1], room_name, MAX_LENGTH);
@@ -34,36 +34,10 @@ int handle_create_room(int sockfd, const char *room_name)
     return buffer[0]; // Trả về ID phòng được tạo, hoặc -1 nếu lỗi
 }
 
-// Client gửi yêu cầu xoá phòng đấu giá
-int handle_delete_room(int sockfd, int item_id)
-{
-    char buffer[BUFFER_SIZE];
-
-    // Đóng gói dữ liệu
-    buffer[0] = DELETE_ROOM;
-    memcpy(&buffer[1], &item_id, sizeof(item_id));
-
-    // Gửi dữ liệu qua socket
-    if (send(sockfd, buffer, sizeof(item_id) + 1, 0) < 0)
-    {
-        perror("Failed to send delete room request");
-        return -1;
-    }
-
-    // Nhận phản hồi từ server
-    memset(buffer, 0, BUFFER_SIZE);
-    if (recv(sockfd, buffer, BUFFER_SIZE, 0) < 0)
-    {
-        perror("Failed to receive response");
-        return -1;
-    }
-
-    return buffer[0]; // Trả về ID vật phẩm được xoá
-}
-
 // Client gửi yêu cầu tạo vật phẩm đấu giá
 int handle_create_item(int sockfd, const char *item_name, int startingPrice, int buyNowPrice, int room_id)
 {
+    logSystem("CLIENT", "CREATE_ITEM", "Client %d Gửi yêu cầu tạo mới vật phẩm đấu giá", sockfd);
     char buffer[BUFFER_SIZE];
     Item item;
     item.room_id = room_id;
@@ -73,10 +47,10 @@ int handle_create_item(int sockfd, const char *item_name, int startingPrice, int
 
     // Đóng gói dữ liệu
     buffer[0] = CREATE_ITEM;
-    memcpy(&buffer[1], &item, sizeof(item));
+    memcpy(&buffer[1], &item, sizeof(Item));
 
     // Gửi dữ liệu qua socket
-    if (send(sockfd, buffer, sizeof(item) + 1, 0) < 0)
+    if (send(sockfd, buffer, sizeof(Item) + 1, 0) < 0)
     {
         perror("Failed to send add item request");
         return -1;
@@ -96,6 +70,7 @@ int handle_create_item(int sockfd, const char *item_name, int startingPrice, int
 // Client gửi yêu cầu xoá vật phẩm đấu giá
 int handle_delete_item(int sockfd, int itemId)
 {
+    logSystem("CLIENT", "DELETE_ITEM", "Client %d Gửi yêu cầu lấy xoá vật phẩm - id: %d", sockfd, itemId);
     char buffer[BUFFER_SIZE];
 
     // Đóng gói dữ liệu
@@ -126,6 +101,7 @@ int handle_delete_item(int sockfd, int itemId)
 // Client gửi yêu cầu lấy danh sách tất cả các phòng đấu giá
 int handle_fetch_all_rooms(int sockfd, Room *rooms)
 {
+    logSystem("CLIENT", "FETCH_ALL_ROOMS", "Client %d Gửi yêu cầu lấy danh sách tất cả các phòng đấu giá hiện có", sockfd);
     char buffer[BUFFER_SIZE];
     buffer[0] = FETCH_ALL_ROOMS;
 
@@ -159,6 +135,7 @@ int handle_fetch_all_rooms(int sockfd, Room *rooms)
 // Client gửi yêu cầu lấy danh sách các phòng đấu giá đang sở hữu
 int handle_fetch_own_rooms(int sockfd, Room *rooms)
 {
+    logSystem("CLIENT", "FETCH_OWN_ROOMS", "Client %d Gửi yêu cầu lấy danh sách các phòng đấu giá đang sở hữu", sockfd);
     char buffer[BUFFER_SIZE];
     buffer[0] = FETCH_OWN_ROOMS;
 
@@ -184,6 +161,7 @@ int handle_fetch_own_rooms(int sockfd, Room *rooms)
 // Lấy danh sách vật phẩm trong phòng đấu giá
 int handle_fetch_items(int sockfd, int room_id, Item *items)
 {
+    logSystem("CLIENT", "FETCH_ITEMS", "Client %d Gửi yêu cầu lấy danh sách vật phẩm trong room - %d", sockfd, room_id);
     char buffer[BUFFER_SIZE];
 
     // Đóng gói yêu cầu
@@ -211,6 +189,7 @@ int handle_fetch_items(int sockfd, int room_id, Item *items)
 
 int handle_join_room(int sockfd, int room_id, Room *room)
 {
+    logSystem("CLIENT", "JOIN_ROOM", "Client %d Gửi yêu cầu tham gia phòng đấu giá - %d", sockfd, room_id);
     char buffer[BUFFER_SIZE];
 
     // Định dạng thông điệp gửi đi
@@ -239,7 +218,9 @@ int handle_join_room(int sockfd, int room_id, Room *room)
     return role;
 }
 
-int handle_exit_room(int sockfd, int room_id) {
+int handle_exit_room(int sockfd, int room_id)
+{
+    logSystem("CLIENT", "EXIT_ROOM", "Client %d Gửi yêu cầu rời phòng đấu giá - %d", sockfd, room_id);
     char buffer[BUFFER_SIZE];
 
     // Định dạng thông điệp gửi đi
@@ -265,6 +246,7 @@ int handle_exit_room(int sockfd, int room_id) {
 
 void handle_start_auction(int sockfd, int room_id)
 {
+    logSystem("CLIENT", "START_AUCTION", "Chủ phòng %d Gửi yêu cầu bắt đầu phiên đấu giá", room_id);
     char buffer[BUFFER_SIZE];
     buffer[0] = START_AUCTION;
 
@@ -278,7 +260,9 @@ void handle_start_auction(int sockfd, int room_id)
     return;
 }
 
-void handle_bid_request(int sockfd, int room_id, int bid_amount){
+void handle_bid_request(int sockfd, int room_id, int bid_amount)
+{
+    logSystem("CLIENT", "BID", "Client %d Gửi yêu cầu đấu giá vật phẩm trong room - %d", sockfd, room_id);
     char buffer[BUFFER_SIZE];
     buffer[0] = BID;
     memcpy(buffer + 1, &room_id, sizeof(int));
@@ -292,4 +276,29 @@ void handle_bid_request(int sockfd, int room_id, int bid_amount){
     }
 
     return;
+}
+
+int handle_buy_now(int sockfd, int item_id)
+{
+    logSystem("CLIENT", "BUY_NOW", "Client %d Gửi yêu cầu mua ngay vật phẩm id - %d", sockfd, item_id);
+    char buffer[BUFFER_SIZE];
+    // Định dạng thông điệp gửi đi
+    buffer[0] = BUY_NOW;
+    buffer[1] = item_id;
+
+    // Gửi yêu cầu qua socket
+    if (send(sockfd, buffer, 2, 0) < 0)
+    {
+        perror("Failed to send buy item request");
+        return -1;
+    }
+
+    // Nhận danh sách phòng từ server
+    if (recv(sockfd, buffer, BUFFER_SIZE, 0) < 0)
+    {
+        perror("Failed to receive response");
+        return -1;
+    }
+
+    return buffer[0];
 }

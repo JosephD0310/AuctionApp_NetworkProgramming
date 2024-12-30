@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "item.h"
+#include "room.h"
 
 // Hàm để lấy ID Vật phẩm tiếp theo (tăng dần)
 int getNextItemId()
@@ -14,7 +15,7 @@ int getNextItemId()
     }
 
     Item item;
-    while (fscanf(file, "%d %s %d %d %d %s\n", &item.item_id, item.item_name, &item.startingPrice, &item.buyNowPrice, &item.room_id, item.status) == 6)
+    while (fscanf(file, "%d %s %d %d %d %s %s %d\n", &item.item_id, item.item_name, &item.startingPrice, &item.buyNowPrice, &item.room_id, item.status, item.purchaser, &item.sold_price) == 8)
     {
         if (item.item_id >= next_item_id)
         {
@@ -30,14 +31,17 @@ int createItem(const char *item_name, int startingPrice, int buyNowPrice, int ro
 {
     int item_id = getNextItemId();
 
+    Room room;
+    int res = getRoomById(room_id, &room);
+
     FILE *file = fopen("data/items.txt", "a");
     if (file == NULL)
     {
         return 0; // Lỗi khi mở file
     }
 
-    fprintf(file, "%d %s %d %d %d %s\n", item_id, item_name, startingPrice, buyNowPrice, room_id, "Available");
-    
+    fprintf(file, "%d %s %d %d %d %s %s %d\n", item_id, item_name, startingPrice, buyNowPrice, room_id, "Available", room.username, 0);
+
     fclose(file);
     return item_id; // Thành công
 }
@@ -56,8 +60,8 @@ int deleteItem(int item_id)
     int count = 0;
 
     // Đọc tất cả các item vào mảng
-    while (fscanf(file, "%d %s %d %d %d %s\n", &items[count].item_id, items[count].item_name, &items[count].startingPrice,
-                  &items[count].buyNowPrice, &items[count].room_id, items[count].status) == 6)
+    while (fscanf(file, "%d %s %d %d %d %s %s %d\n", &items[count].item_id, items[count].item_name, &items[count].startingPrice,
+                  &items[count].buyNowPrice, &items[count].room_id, items[count].status, items[count].purchaser, &items[count].sold_price) == 8)
     {
         count++;
     }
@@ -78,8 +82,8 @@ int deleteItem(int item_id)
     {
         if (items[i].item_id != item_id)
         {
-            fprintf(file, "%d %s %d %d %d %s\n", items[i].item_id, items[i].item_name, items[i].startingPrice,
-                    items[i].buyNowPrice, items[i].room_id, items[i].status);
+            fprintf(file, "%d %s %d %d %d %s %s %d\n", items[i].item_id, items[i].item_name, items[i].startingPrice,
+                    items[i].buyNowPrice, items[i].room_id, items[i].status, items[i].purchaser, items[i].sold_price);
         }
         else
         {
@@ -130,7 +134,7 @@ int loadItems(int room_id, Item *items)
     if (room_id != 0)
     {
         Item existedItem;
-        while (fscanf(file, "%d %s %d %d %d %s\n", &existedItem.item_id, existedItem.item_name, &existedItem.startingPrice, &existedItem.buyNowPrice, &existedItem.room_id, existedItem.status) == 6)
+        while (fscanf(file, "%d %s %d %d %d %s %s %d\n", &existedItem.item_id, existedItem.item_name, &existedItem.startingPrice, &existedItem.buyNowPrice, &existedItem.room_id, existedItem.status, existedItem.purchaser, &existedItem.sold_price) == 8)
         {
             if (existedItem.room_id == room_id)
             {
@@ -141,13 +145,13 @@ int loadItems(int room_id, Item *items)
     else
     {
         Item existedItem;
-        while (fscanf(file, "%d %s %d %d %d %s\n", &existedItem.item_id, existedItem.item_name, &existedItem.startingPrice, &existedItem.buyNowPrice, &existedItem.room_id, existedItem.status) == 6)
+        while (fscanf(file, "%d %s %d %d %d %s %s %d\n", &existedItem.item_id, existedItem.item_name, &existedItem.startingPrice, &existedItem.buyNowPrice, &existedItem.room_id, existedItem.status, existedItem.purchaser, &existedItem.sold_price) == 8)
         {
             items[item_count++] = existedItem;
         }
     }
 
-    fclose(file);    
+    fclose(file);
     return item_count;
 }
 
@@ -161,7 +165,7 @@ int getItemById(int item_id, Item *item)
     }
 
     Item existedItem;
-    while (fscanf(file, "%d %s %d %d %d %s\n", &existedItem.item_id, existedItem.item_name, &existedItem.startingPrice, &existedItem.buyNowPrice, &existedItem.room_id, existedItem.status) == 6)
+    while (fscanf(file, "%d %s %d %d %d %s %s %d\n", &existedItem.item_id, existedItem.item_name, &existedItem.startingPrice, &existedItem.buyNowPrice, &existedItem.room_id, existedItem.status, existedItem.purchaser, &existedItem.sold_price) == 8)
     {
         if (existedItem.item_id == item_id)
         {
@@ -186,13 +190,15 @@ int getFirstAvailableItem(int room_id, Item *item)
     }
 
     Item current_item;
-    while (fscanf(file, "%d %s %d %d %d %s\n", 
-                  &current_item.item_id, 
-                  current_item.item_name, 
-                  &current_item.startingPrice, 
-                  &current_item.buyNowPrice, 
-                  &current_item.room_id, 
-                  current_item.status) == 6)
+    while (fscanf(file, "%d %s %d %d %d %s %s %d\n",
+                  &current_item.item_id,
+                  current_item.item_name,
+                  &current_item.startingPrice,
+                  &current_item.buyNowPrice,
+                  &current_item.room_id,
+                  current_item.status,
+                  current_item.purchaser,
+                  &current_item.sold_price) == 8)
     {
         // Kiểm tra room_id khớp và trạng thái là Available
         if (current_item.room_id == room_id && strcmp(current_item.status, "Available") == 0)
@@ -208,10 +214,10 @@ int getFirstAvailableItem(int room_id, Item *item)
 }
 
 // Hàm cập nhật thông tin vật phẩm
-int updateItemById(int item_id, int room_id, int number, const char *option)
+int updateItemById(int item_id, int number, const char *option)
 {
     Item items[MAX_ITEM_IN_ROOM];
-    int count = loadItems(room_id, items);
+    int count = loadItems(0, items);
 
     // Tìm vật phẩm cần cập nhật
     int updated = 0;
@@ -222,10 +228,6 @@ int updateItemById(int item_id, int room_id, int number, const char *option)
             if (strcmp(option, "Sold") == 0)
             {
                 strncpy(items[i].status, "Sold", sizeof(items[i].status)); // Cập nhật trạng thái vật phẩm
-            }
-            else if (strcmp(option, "price") == 0) // Cập nhật giá bán và chủ sở hữu mới
-            {
-                
             }
             updated = 1;
             break;
@@ -248,10 +250,51 @@ int updateItemById(int item_id, int room_id, int number, const char *option)
 
     for (int i = 0; i < count; i++)
     {
-        fprintf(file, "%d %s %d %d %d %s\n", items[i].item_id, items[i].item_name, items[i].startingPrice, items[i].buyNowPrice, items[i].room_id, items[i].status);
+        fprintf(file, "%d %s %d %d %d %s %s %d\n", items[i].item_id, items[i].item_name, items[i].startingPrice, items[i].buyNowPrice, items[i].room_id, items[i].status, items[i].purchaser, items[i].sold_price);
     }
     fclose(file); // Đóng file sau khi ghi
 
     return item_id; // Thành công
 }
 
+// Hàm cập nhật thông tin người mua và giá bán
+int purchaseItem(int item_id, const char *purchaser, int sold_price)
+{
+    Item items[MAX_ITEM_IN_ROOM];
+    int count = loadItems(0, items);
+
+    // Tìm vật phẩm cần cập nhật
+    int updated = 0;
+    for (int i = 0; i < count; i++)
+    {
+        if (items[i].item_id == item_id)
+        {
+            strncpy(items[i].purchaser, purchaser, sizeof(items[i].purchaser));
+            items[i].sold_price = sold_price;
+            updated = 1;
+            break;
+        }
+    }
+
+    if (!updated)
+    {
+        // Không tìm thấy vp cần cập nhật
+        return 0;
+    }
+
+    // Ghi lại dữ liệu đã cập nhật vào file
+    FILE *file = fopen("data/items.txt", "w");
+    if (file == NULL)
+    {
+        perror("Error reopening file to save updated item");
+        return 0;
+    }
+
+    for (int i = 0; i < count; i++)
+    {
+        fprintf(file, "%d %s %d %d %d %s %s %d\n", items[i].item_id, items[i].item_name, items[i].startingPrice, items[i].buyNowPrice, items[i].room_id, items[i].status, items[i].purchaser, items[i].sold_price);
+    }
+    fclose(file); // Đóng file sau khi ghi
+
+    return item_id; // Thành công
+}

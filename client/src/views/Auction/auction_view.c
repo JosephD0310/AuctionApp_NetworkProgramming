@@ -7,7 +7,9 @@
 #include "auction_manger.h"
 #include "message_type.h"
 #include "room.h"
+#include "user.h"
 #include "item.h"
+#include "session_manager.h"
 
 typedef struct
 {
@@ -16,6 +18,7 @@ typedef struct
     int room_id;
     int item_id;
     GtkWidget *home_window;
+    GtkWidget *label_money;
     GtkWidget *label_room_joiner;
     GtkWidget *auction_window;
     GtkStack *auction_stack;
@@ -113,6 +116,7 @@ GtkWidget *add_item_card(Item item, gpointer user_data)
     // Tìm và cập nhật nội dung trong card
     GtkWidget *item_name = GTK_WIDGET(gtk_builder_get_object(builder, "item_name"));
     GtkWidget *status = GTK_WIDGET(gtk_builder_get_object(builder, "status"));
+    GtkWidget *buy_now_price = GTK_WIDGET(gtk_builder_get_object(builder, "buy_now_price"));
     GtkWidget *buy_button = GTK_WIDGET(gtk_builder_get_object(builder, "buy_button"));
     GtkWidget *delete_button = GTK_WIDGET(gtk_builder_get_object(builder, "delete_button"));
 
@@ -126,13 +130,20 @@ GtkWidget *add_item_card(Item item, gpointer user_data)
         gtk_label_set_text(GTK_LABEL(status), item.status);
     }
 
+    if (GTK_IS_LABEL(buy_now_price))
+    {
+        char label[32];
+        snprintf(label, sizeof(label), "%d", item.buyNowPrice);
+        gtk_label_set_text(GTK_LABEL(buy_now_price), label);
+    }
+
     gtk_widget_show_all(card);
 
     if (context->role == 2)
     {
         gtk_widget_hide(delete_button);
     }
-    if (context->role == 1)
+    if (context->role == 1 || strcmp(item.status, "Sold") == 0)
     {
         gtk_widget_hide(buy_button);
     }
@@ -178,6 +189,28 @@ void on_delete_item(GtkWidget *button, gpointer user_data)
         clear_item_children(GTK_LIST_BOX(context->auctionContext->item_list));
         fetch_item(context->auctionContext);
     }
+}
+
+void on_buy_item(GtkWidget *button, gpointer user_data)
+{
+    ItemContext *context = (ItemContext *)user_data;
+    g_print("Buy button clicked\n");
+
+    int result = handle_buy_now(context->sockfd, context->item.item_id);
+    if (result > 0)
+    {
+        clear_item_children(GTK_LIST_BOX(context->auctionContext->item_list));
+        fetch_item(context->auctionContext);
+    }
+
+    // ClientSession *session = find_session_by_socket(context->sockfd);
+
+    // if (GTK_IS_LABEL(context->auctionContext->label_money))
+    // {
+    //     char label[32];
+    //     snprintf(label, sizeof(label), "%d", session->money);
+    //     gtk_label_set_text(GTK_LABEL(context->auctionContext->label_money), label);
+    // }
 }
 
 ////////////////// LIST ITEM /////////////////
@@ -280,7 +313,6 @@ void start_countdown(AuctionContext *context, int time_left)
     // Đăng ký callback mới
     context->timeout_id = g_timeout_add(1000, countdown_timer, context);
 }
-
 
 // Hàm tính toán bước giá
 void calculate_bid_steps(int item_price, int *step1, int *step2, int *step3, int *step4)
@@ -387,7 +419,6 @@ void on_bid_1(GtkWidget *button, gpointer user_data)
     int bit_amount = context->bid1 + context->current_bid;
     handle_bid_request(context->sockfd, context->room_id, bit_amount);
     printf("You selected bid: %d\n", bit_amount);
-
 }
 
 void on_bid_2(GtkWidget *button, gpointer user_data)
@@ -419,6 +450,7 @@ void on_bid_4(GtkWidget *button, gpointer user_data)
 void reload_auction_view(gpointer user_data)
 {
     AuctionContext *context = (AuctionContext *)user_data;
+    // ClientSession *session = find_session_by_socket(context->sockfd);
 
     // Cập nhập số người tham gia phòng
     if (GTK_IS_LABEL(context->label_room_joiner))
@@ -436,6 +468,14 @@ void reload_auction_view(gpointer user_data)
         snprintf(joiner_count_text, sizeof(joiner_count_text), "%d", room.numUsers);
         gtk_label_set_text(GTK_LABEL(context->label_room_joiner), joiner_count_text);
     }
+
+    // if (GTK_IS_LABEL(context->label_money))
+    // {
+    //     char label[32];
+    //     snprintf(label, sizeof(label), "%d", session->money);
+    //     gtk_label_set_text(GTK_LABEL(context->label_money), label);
+    // }
+
     // Xóa nội dung cũ
     clear_item_children(context->item_list);
 
@@ -481,6 +521,7 @@ gboolean on_socket_event_auction(GIOChannel *source, GIOCondition condition, gpo
             case RESULT_AUCTION:
                 printf("Kết quả đấu giá.\n");
                 handle_result_msg(buffer, context);
+                reload_auction_view(context);
                 break;
             case END_AUCTION:
                 printf("Kết thúc phiên đấu giá.\n");
@@ -497,7 +538,7 @@ gboolean on_socket_event_auction(GIOChannel *source, GIOCondition condition, gpo
 
 ////////////////// ////////////////// //////////////////
 
-void init_auction_view(int sockfd, GtkWidget *home_window, Room room, int role)
+void init_auction_view(int sockfd, GtkWidget *home_window, Room room, User user, int role)
 {
     AuctionContext *auctionContext = g_malloc(sizeof(AuctionContext));
     auctionContext->sockfd = sockfd;
@@ -519,6 +560,14 @@ void init_auction_view(int sockfd, GtkWidget *home_window, Room room, int role)
 
     window = GTK_WIDGET(gtk_builder_get_object(builder, "window_auction"));
     g_signal_connect(window, "destroy", G_CALLBACK(on_auction_window_destroy), auctionContext);
+
+    GtkWidget *label_username = GTK_WIDGET(gtk_builder_get_object(builder, "label_username"));
+    GtkWidget *label_money = GTK_WIDGET(gtk_builder_get_object(builder, "label_money"));
+    auctionContext->label_money = label_money;
+    gtk_label_set_text(GTK_LABEL(label_username), user.username);
+    char money_text[32];
+    snprintf(money_text, sizeof(money_text), "%d", user.money);
+    gtk_label_set_text(GTK_LABEL(label_money), money_text);
 
     GtkWidget *label_room_name = GTK_WIDGET(gtk_builder_get_object(builder, "label_room_name"));
     GtkWidget *label_room_owner = GTK_WIDGET(gtk_builder_get_object(builder, "label_room_owner"));

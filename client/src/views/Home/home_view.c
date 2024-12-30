@@ -6,9 +6,11 @@
 #include "auction_service.h"
 #include "message_type.h"
 
+
 typedef struct
 {
     int sockfd;
+    User user;
     GtkWidget *home_window;
     GtkWidget *dashboard;
     GtkWidget *room_item;
@@ -26,6 +28,7 @@ typedef struct
 {
     int sockfd;
     int room_id;
+    User user;
     GtkWidget *home_window;
 } RoomContext;
 
@@ -68,6 +71,7 @@ GtkWidget *create_room_card(Room room, gpointer user_data)
     roomContext->sockfd = context->sockfd;
     roomContext->room_id = room.room_id;
     roomContext->home_window = context->home_window;
+    roomContext->user = context->user;
 
     gtk_builder_connect_signals(builder, roomContext);
 
@@ -83,6 +87,7 @@ GtkWidget *create_room_card(Room room, gpointer user_data)
     GtkWidget *label_room_name = GTK_WIDGET(gtk_builder_get_object(builder, "label_room_name"));
     GtkWidget *label_room_owner = GTK_WIDGET(gtk_builder_get_object(builder, "label_room_owner"));
     GtkWidget *label_item_count = GTK_WIDGET(gtk_builder_get_object(builder, "label_item_count"));
+    GtkWidget *label_room_status = GTK_WIDGET(gtk_builder_get_object(builder, "label_room_status"));
 
     if (GTK_IS_LABEL(label_room_name))
     {
@@ -91,6 +96,10 @@ GtkWidget *create_room_card(Room room, gpointer user_data)
     if (GTK_IS_LABEL(label_room_owner))
     {
         gtk_label_set_text(GTK_LABEL(label_room_owner), room.username);
+    }
+    if (GTK_IS_LABEL(label_room_status))
+    {
+        gtk_label_set_text(GTK_LABEL(label_room_status), room.status);
     }
     if (GTK_IS_LABEL(label_item_count))
     {
@@ -116,7 +125,7 @@ void on_join_btn_clicked(GtkWidget *button, gpointer user_data)
     }
 
     gtk_widget_hide(context->home_window);
-    init_auction_view(context->sockfd, context->home_window, room, role);
+    init_auction_view(context->sockfd, context->home_window, room, context->user, role);
 }
 
 void fetch_all_room(gpointer user_data)
@@ -312,6 +321,7 @@ void init_home_view(int sockfd, GtkWidget *auth_window, User user)
     AppContext *appContext = g_malloc(sizeof(AppContext));
     appContext->sockfd = sockfd;
     appContext->home_window = window;
+    appContext->user = user;
 
     appContext->dashboard = GTK_WIDGET(gtk_builder_get_object(builder, "dashboard"));
     appContext->room_list_all = GTK_FLOW_BOX(gtk_builder_get_object(builder, "room_list_all"));

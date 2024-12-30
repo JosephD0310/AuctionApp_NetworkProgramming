@@ -3,12 +3,13 @@
 
 #include <stdbool.h>
 
-#define MAX_CLIENTS 1024
+#define MAX_CLIENTS 50
 
 
 typedef struct {
     int sockfd;        
     int user_id;       
+    int money;       
     char username[64];
 } ClientSession;
 
@@ -21,8 +22,9 @@ bool add_session(int sockfd);
 void remove_session(int sockfd);
 
 ClientSession *find_session_by_socket(int sockfd);
+ClientSession *find_session_by_user_id(int user_id);
 
-bool update_session_user(int sockfd, int user_id, const char *username);
+bool update_session_user(int sockfd, int money);
 
 void print_sessions();
 

@@ -146,11 +146,6 @@ int main()
                             broadcast_refresh(fd);
                             break;
                         }
-                        case DELETE_ROOM:
-                        {
-                            handleDeleteRoom(fd, buffer); // Use correct handler for delete room
-                            break;
-                        }
                         case FETCH_ALL_ROOMS:
                         {
                             handleFetchAllRoom(fd);
@@ -199,6 +194,12 @@ int main()
                         case BID:
                         {
                             handleBidRequest(fd, buffer);
+                            break;
+                        }
+                        case BUY_NOW:
+                        {
+                            handleBuyNow(fd, buffer[1]);
+                            broadcast_refresh(fd);
                             break;
                         }
                         default:
