@@ -1,8 +1,5 @@
 # AuctionApp_NetworkProgramming
 
-![C](https://img.shields.io/badge/C-00599C?style=for-the-badge&logo=c&logoColor=white)
-![Glade](https://img.shields.io/badge/Glade-0191C8?style=for-the-badge&logo=gnome&logoColor=white)
-
 ## About the project
 
 This repository contains the client & server code for the ***Auction App*** project. This project aims to practice the socket protocol learned for Network Programming.
@@ -25,6 +22,24 @@ This repository contains the client & server code for the ***Auction App*** proj
 <!-- GETTING STARTED -->
 
 ### Setup and Installation
+
+0. Install library:
+
+```bash
+sudo apt update
+```
+```bash
+sudo apt install build-essential
+```
+```bash
+sudo apt install make
+```
+```bash
+sudo apt install pkg-config
+```
+```bash
+sudo apt install libgtk-3-dev
+```
 
 1. Clone the repository:
 
