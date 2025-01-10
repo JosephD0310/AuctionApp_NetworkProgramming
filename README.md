@@ -49,7 +49,3 @@ make
 ```bash
 ./client_exec
 ```
-
-### ScreenShots
-
-![Login page]()
