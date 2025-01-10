@@ -17,7 +17,6 @@ void handle_login(int client_socket, char buffer[BUFFER_SIZE])
     User user;
     memcpy(&user, &buffer[1], sizeof(user)); // Deserialize dữ liệu từ buffer
 
-    logSystem("SERVER", "LOGIN", "Nhận và xử lý yêu cầu đăng nhập - username: %s", user.username);
 
     // Lưu thông tin người dùng
     int user_id = authenticateUser(user);
@@ -61,7 +60,6 @@ void handle_register(int client_socket, char buffer[BUFFER_SIZE])
     User user;
     memcpy(&user, &buffer[1], sizeof(user));
 
-    logSystem("SERVER", "REGISTER", "Nhận và xử lý yêu cầu đăng ký - username: %s", user.username);
 
     // Lưu thông tin người dùng
     int user_id = saveUser(user);
@@ -105,7 +103,6 @@ void handleCreateRoom(int client_socket, char buffer[BUFFER_SIZE])
     char roomName[MAX_LENGTH];
     memcpy(roomName, &buffer[1], MAX_LENGTH);
     ClientSession *session = find_session_by_socket(client_socket);
-    logSystem("SERVER", "CREATE_ROOM", "Nhận và xử lý yêu cầu tạo phòng - username: %s", session->username);
 
     if (session != NULL)
     {
@@ -126,7 +123,6 @@ void handleCreateRoom(int client_socket, char buffer[BUFFER_SIZE])
 
 void handleFetchAllRoom(int client_socket)
 {
-    logSystem("SERVER", "FETCH_ALL_ROOM", "Nhận và xử lý yêu cầu lấy danh sách tất cả các phòng hiện có");
     char buffer[BUFFER_SIZE];
     Room rooms[MAX_ROOMS];
     int room_count = loadRooms(rooms, NULL);
@@ -151,7 +147,6 @@ void handleFetchAllRoom(int client_socket)
 void handleFetchOwnRoom(int client_socket)
 {
     ClientSession *session = find_session_by_socket(client_socket);
-    logSystem("SERVER", "FETCH_OWN_ROOM", "Nhận và xử lý yêu cầu lấy danh sách các phòng đang sử hữu - username: %s", session->username);
     if (session != NULL)
     {
         char buffer[BUFFER_SIZE];
@@ -217,7 +212,6 @@ void handleJoinRoom(int client_socket, int room_id)
 {
     char buffer[BUFFER_SIZE];
     ClientSession *session = find_session_by_socket(client_socket);
-    logSystem("SERVER", "JOIN_ROOM", "Nhận và xử lý yêu cầu tham gia phòng %d - username: %s",room_id, session->username);
     Room room;
     int result = getRoomById(room_id, &room);
     printf("%d %s \n", room.room_id, session->username);
@@ -274,7 +268,6 @@ void handleJoinRoom(int client_socket, int room_id)
 void handleExitRoom(int client_socket, int room_id)
 {
     ClientSession *session = find_session_by_socket(client_socket);
-    logSystem("SERVER", "JOIN_ROOM", "Nhận và xử lý yêu cầu rời phòng %d - username: %s",room_id, session->username);
     Room room;
     int result = getRoomById(room_id, &room);
 
@@ -343,7 +336,6 @@ void handleCreateItem(int client_socket, char buffer[BUFFER_SIZE])
         }
     }
     send(client_socket, &item_id, 1, 0);
-    // logSystem("SERVER", "CREAT_ITEM", "Nhận và xử lý yêu cầu tạo vật phẩm - client: %s", client_socket);
 }
 
 void handleFetchItems(int client_socket, char buffer[BUFFER_SIZE])
@@ -366,7 +358,6 @@ void handleFetchItems(int client_socket, char buffer[BUFFER_SIZE])
 
 void handleDeleteItem(int sockfd, char buffer[BUFFER_SIZE])
 {
-    logSystem("SERVER", "DELETE_ITEM", "Nhận và xử lý yêu cầu xoá vật phẩm - client: %s", sockfd);
     int item_id = buffer[1];
     int room_id = deleteItem(item_id);
     int response = 1;
@@ -481,7 +472,6 @@ void *countdown_timer(void *arg)
 void handleStartAuction(int client_socket, int room_id)
 {
     printf("CheckStart\n");
-    logSystem("SERVER", "START_AUCTION", "Nhận và xử lý yêu cầu bắt đầu phòng đấu giá %d", room_id);
     // Lấy phiên đấu giá
     AuctionSession *auction_session = find_auction_by_room_id(room_id);
     Item current_item;
@@ -533,7 +523,6 @@ void handleBidRequest(int client_socket, char buffer[BUFFER_SIZE])
 
     AuctionSession *auction_session = find_auction_by_room_id(room_id);
     ClientSession *session = find_session_by_socket(client_socket);
-    logSystem("SERVER", "BID", "Nhận và xử lý yêu cầu đấu giá từ client -  %s", session->username);
 
     if (bid_amount > auction_session->current_bid)
     {
@@ -552,7 +541,6 @@ void handleBidRequest(int client_socket, char buffer[BUFFER_SIZE])
 void handleBuyNow(int client_socket, int item_id)
 {
     ClientSession *session = find_session_by_socket(client_socket);
-    logSystem("SERVER", "BUY_NOW", "Nhận và xử lý yêu cầu mua ngay vật phẩm từ client -  %s", session->username);
     printf("user buy %s - %d\n", session->username, session->user_id);
     Item item;
     Room room;

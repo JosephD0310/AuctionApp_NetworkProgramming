@@ -6,7 +6,7 @@ This repository contains the client & server code for the ***Auction App*** proj
 
 ### Technologies Used
 
-- ***Glade*** for GUI
+- ***GTK 3.0 / Glade*** for GUI
 - ***C*** for code
 
 ### Feature
@@ -50,6 +50,7 @@ git clone https://github.com/JosephD0310/AuctionApp_NetworkProgramming.git
 2. Program compilation:
 
 ```bash
+make clean
 make
 ```
 

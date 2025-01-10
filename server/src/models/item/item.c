@@ -34,6 +34,11 @@ int createItem(const char *item_name, int startingPrice, int buyNowPrice, int ro
     Room room;
     int res = getRoomById(room_id, &room);
 
+    if (res == 0)
+    {
+        return 0;
+    }
+
     FILE *file = fopen("data/items.txt", "a");
     if (file == NULL)
     {

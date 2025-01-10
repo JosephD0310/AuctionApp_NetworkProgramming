@@ -182,7 +182,6 @@ int main()
                         case JOIN_ROOM:
                         {
                             handleJoinRoom(fd, buffer[1]);
-                            // broadcast_refresh(fd, REFRESH);
                             break;
                         }
                         case EXIT_ROOM:
